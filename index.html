@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgaTube</title>
+
+    <link rel="stylesheet" href="index.css">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <header>
+
+        <div class="left-header">
+            <h2 class="logo">
+                <i class="fa-brands fa-youtube"></i>
+                AgaTube
+            </h2>
+        </div>
+
+        <div class="middle-header">
+
+            <input
+                type="text"
+                id="searchBar"
+                placeholder="Video ara...">
+
+            <button id="searchButton">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+
+        </div>
+
+        <div class="right-header">
+
+            <button id="uploadButton">
+                <i class="fa-solid fa-upload"></i>
+                Upload
+            </button>
+
+            <input
+                type="file"
+                id="videoInput"
+                accept="video/*"
+                hidden>
+
+            <span id="welcome"></span>
+
+        </div>
+
+    </header>
+
+    <!-- SAYFA -->
+    <div class="container">
+
+        <!-- SOL MENÜ -->
+        <aside>
+
+            <button>
+                <i class="fa-solid fa-house"></i>
+                Ana Sayfa
+            </button>
+
+            <button>
+                <i class="fa-solid fa-users"></i>
+                Kanallar
+            </button>
+
+            <button>
+                <i class="fa-solid fa-film"></i>
+                Abonelikler
+            </button>
+
+        </aside>
+
+        <!-- ANA İÇERİK -->
+        <main>
+
+            <div id="videoContainer"></div>
+
+        </main>
+
+    </div>
+
+    <!-- UPLOAD MODAL -->
+    <div id="uploadModal" class="modal">
+
+        <div class="modal-content">
+
+            <h2>Yeni Video Yükle</h2>
+
+            <input
+                type="text"
+                id="videoTitleInput"
+                placeholder="Video Başlığı">
+
+            <textarea
+                id="videoDescription"
+                placeholder="Video Açıklaması"></textarea>
+
+            <button id="chooseVideo">
+                <i class="fa-solid fa-video"></i>
+                Video Seç
+            </button>
+
+            <p id="selectedVideo">
+                Henüz video seçilmedi.
+            </p>
+
+            <div class="modal-buttons">
+
+                <button id="closeModal">
+                    İptal
+                </button>
+
+                <button id="uploadVideo">
+                    Yükle
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+    <script type="module" src="firebase.js"></script>
+<script type="module" src="index.js"></script>
+
+    
+
+</body>
+</html>

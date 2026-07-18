@@ -1,0 +1,421 @@
+/* ===========================
+   Genel
+=========================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    background:#0f0f0f;
+    color:white;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+
+/* ===========================
+   Header
+=========================== */
+
+header{
+
+    height:70px;
+
+    background:#181818;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    padding:0 25px;
+
+    border-bottom:1px solid #303030;
+
+    position:sticky;
+    top:0;
+    z-index:100;
+
+}
+
+.left-header{
+
+    display:flex;
+    align-items:center;
+
+}
+
+.logo{
+
+    color:red;
+    font-size:30px;
+
+}
+
+.logo i{
+
+    margin-right:10px;
+
+}
+
+.middle-header{
+
+    display:flex;
+    align-items:center;
+
+}
+
+#searchBar{
+
+    width:450px;
+
+    padding:12px;
+
+    border:none;
+
+    outline:none;
+
+    background:#242424;
+
+    color:white;
+
+    border-radius:25px 0 0 25px;
+
+}
+
+#searchButton{
+
+    width:60px;
+
+    height:42px;
+
+    border:none;
+
+    background:#363636;
+
+    color:white;
+
+    border-radius:0 25px 25px 0;
+
+    cursor:pointer;
+
+}
+
+#searchButton:hover{
+
+    background:#444;
+
+}
+
+.right-header{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:20px;
+
+}
+
+#welcome{
+
+    font-weight:bold;
+
+}
+
+
+/* ===========================
+   Upload Butonu
+=========================== */
+
+#uploadButton{
+
+    padding:12px 18px;
+
+    border:none;
+
+    border-radius:25px;
+
+    cursor:pointer;
+
+    background:#ff3030;
+
+    color:white;
+
+    font-weight:bold;
+
+    transition:.25s;
+
+}
+
+#uploadButton:hover{
+
+    background:#ff4a4a;
+
+    transform:scale(1.05);
+
+}
+
+
+/* ===========================
+   Sayfa
+=========================== */
+
+.container{
+
+    display:flex;
+
+}
+
+
+/* ===========================
+   Sol Menü
+=========================== */
+
+aside{
+
+    width:230px;
+
+    min-height:calc(100vh - 70px);
+
+    background:#181818;
+
+    padding:20px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:15px;
+
+}
+
+aside button{
+
+    padding:15px;
+
+    border:none;
+
+    background:none;
+
+    color:white;
+
+    text-align:left;
+
+    cursor:pointer;
+
+    border-radius:10px;
+
+    transition:.25s;
+
+}
+
+aside button:hover{
+
+    background:#303030;
+
+}
+
+aside i{
+
+    margin-right:10px;
+
+}
+
+
+/* ===========================
+   Main
+=========================== */
+
+main{
+
+    flex:1;
+
+    padding:30px;
+
+}
+
+
+/* ===========================
+   Video Grid
+=========================== */
+
+#videoContainer{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
+
+    gap:25px;
+
+    align-items:start;
+
+}
+
+
+/* ===========================
+   Video Kartı
+=========================== */
+
+.video-card{
+
+    background:#202020;
+
+    border-radius:15px;
+
+    overflow:hidden;
+
+}
+
+.video-card:hover{
+
+    transform:translateY(-5px);
+
+    box-shadow:0 0 15px rgba(255,255,255,.15);
+
+}
+
+.video-card video{
+
+    width:100%;
+
+    display:block;
+
+    aspect-ratio:16/9;
+
+    object-fit:cover;
+
+}
+
+.video-card h3{
+
+    margin:15px;
+
+    font-size:18px;
+
+}
+
+.video-card p{
+
+    margin:0 15px 15px;
+
+    color:#aaaaaa;
+
+}
+
+
+/* ===========================
+   Modal
+=========================== */
+
+.modal{
+
+    display:none;
+
+    position:fixed;
+
+    left:0;
+    top:0;
+
+    width:100%;
+    height:100%;
+
+    background:rgba(0,0,0,.75);
+
+    justify-content:center;
+
+    align-items:center;
+
+    z-index:500;
+
+}
+
+.modal-content{
+
+    width:500px;
+
+    background:#202020;
+
+    padding:30px;
+
+    border-radius:15px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:15px;
+
+}
+
+.modal-content input,
+.modal-content textarea{
+
+    padding:12px;
+
+    border:none;
+
+    border-radius:10px;
+
+    background:#303030;
+
+    color:white;
+
+    resize:none;
+
+}
+
+.modal-content textarea{
+
+    height:120px;
+
+}
+
+.modal-content button{
+
+    padding:12px;
+
+    border:none;
+
+    border-radius:10px;
+
+    cursor:pointer;
+
+    font-weight:bold;
+
+}
+
+.modal-buttons{
+
+    display:flex;
+
+    justify-content:flex-end;
+
+    gap:15px;
+
+}
+
+#closeModal{
+
+    background:#555;
+
+    color:white;
+
+}
+
+#uploadVideo{
+
+    background:red;
+
+    color:white;
+
+}
+
+#chooseVideo{
+
+    background:#444;
+
+    color:white;
+
+}

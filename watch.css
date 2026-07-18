@@ -1,0 +1,59 @@
+body{
+
+    background:#0f0f0f;
+
+    color:white;
+
+    font-family:Arial;
+
+}
+
+header{
+
+    background:#181818;
+
+    padding:20px;
+
+}
+
+main{
+
+    width:80%;
+
+    margin:auto;
+
+    margin-top:30px;
+
+}
+
+#watchVideo{
+
+    width:100%;
+
+    border-radius:15px;
+
+}
+
+#watchTitle{
+
+    margin-top:20px;
+
+}
+
+#watchChannel{
+
+    color:#bbbbbb;
+
+}
+
+#watchViews{
+
+    color:#888;
+
+}
+
+#watchDescription{
+
+    margin-top:25px;
+
+}

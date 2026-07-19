@@ -92,6 +92,12 @@ videoInput.addEventListener("change", () => {
 // Video Yükleme (Upload) İşlemi
 // ===============================
 uploadVideo.addEventListener("click", async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+        alert("Oturumunuz sonlanmış, lütfen tekrar giriş yapın.");
+        window.location.href = "login.html";
+        return;
+    }
     const file = videoInput.files[0];
 
     if (!file) {

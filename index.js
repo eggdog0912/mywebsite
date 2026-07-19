@@ -1,4 +1,10 @@
 import { supabase } from "./supabase.js";
+// Canlı sitede konsol yazılarını ve log üzerinden kaynak kod takibini kapatır
+if (window.location.hostname !== "127.0.0.1" && window.location.hostname !== "localhost") {
+    console.log = function() {};
+    console.error = function() {};
+    console.warn = function() {};
+}
 
 // Global değişken (Dışarıdaki fonksiyonların da isme erişebilmesi için)
 let currentUsername = "Misafir";

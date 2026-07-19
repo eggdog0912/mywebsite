@@ -113,8 +113,20 @@ uploadVideo.addEventListener("click", async () => {
         return;
     }
 
-    // Dosya adını oluştur
-    const fileName = Date.now() + "-" + file.name;
+    // 🚀 DOSYA ADINI TÜRKÇE KARAKTERLERDEN VE BOŞLUKLARDAN TEMİZLEME (YENİ)
+    let safeFileName = file.name
+        .toLowerCase()
+        .replace(/ğ/g, 'g')
+        .replace(/ü/g, 'u')
+        .replace(/ş/g, 's')
+        .replace(/ı/g, 'i')
+        .replace(/ö/g, 'o')
+        .replace(/ç/g, 'c')
+        .replace(/[^a-z0-9.]/g, '-') // Harf, rakam ve nokta dışındaki her şeyi (boşluklar dahil) tire yap
+        .replace(/-+/g, '-');        // Yan yana gelen birden fazla tireyi teke indir
+
+    // Benzersiz olması için başına zaman damgası ekle
+    const fileName = Date.now() + "-" + safeFileName;
 
     // Storage'a yükle
     const { error: uploadError } = await supabase.storage
@@ -127,7 +139,7 @@ uploadVideo.addEventListener("click", async () => {
         return;
     }
 
-    console.log("✅ Video Storage'a yüklendi!");
+    console.log("✅ Video Storage'a güvenli isimle yüklendi!");
 
     // Public URL al
     const { data: publicUrlData } = supabase.storage

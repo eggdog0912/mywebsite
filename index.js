@@ -11,7 +11,6 @@ if (!loggedInUser || loggedInUser === "Misafir") {
 
 console.log(supabase);
 
-const username = localStorage.getItem("username") || "Misafir";
 
 document.getElementById("welcome").textContent =
 "Hoşgeldin " + username;

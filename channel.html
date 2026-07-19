@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgaTube - Kanal Sayfası</title>
+    <link rel="stylesheet" href="style.css"> <!-- Mevcut stil dosyanızı bağlayın -->
+</head>
+<body>
+    <header>
+        <button onclick="window.location.href='index.html'">🏠 Ana Sayfa</button>
+        <h1 id="channelTitle">Kanal Yükleniyor...</h1>
+    </header>
+
+    <main>
+        <section class="channel-banner">
+            <h2 id="channelNameDisplay">Kanal Adı</h2>
+            <p>Bu kanalın yüklediği tüm videolar aşağıda listelenmiştir.</p>
+        </section>
+
+        <!-- Sadece bu kanala ait videoların geleceği alan -->
+        <div id="channelVideoContainer" class="video-grid"></div>
+    </main>
+
+    <!-- Supabase ve JS Bağlantısı -->
+    <script type="module" src="channel.js"></script>
+</body>
+</html>

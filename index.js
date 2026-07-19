@@ -180,8 +180,19 @@ function renderVideo(videoData) {
     const title = document.createElement("h3");
     title.textContent = videoData.title;
 
-    const channel = document.createElement("p");
+ const channel = document.createElement("p");
     channel.textContent = videoData.channel;
+    channel.style.cursor = "pointer";
+    channel.style.color = "#0066cc"; // Tıklanabilir olduğunu belli etmek için mavi renk veya hover efekti
+    
+    // Kanal ismine tıklanınca tetiklenecek olay
+    channel.addEventListener("click", (event) => {
+        event.stopPropagation(); // 🚨 KRİTİK: Karta tıklayıp watch.html'e gitme eylemini durdurur!
+        
+        // Target kanalı kaydedip yönlendiriyoruz
+        localStorage.setItem("targetChannel", videoData.channel);
+        window.location.href = `channel.html?name=${encodeURIComponent(videoData.channel)}`;
+    });
 
     const views = document.createElement("p");
     views.textContent = videoData.views + " görüntülenme • " + videoData.upload_date; 

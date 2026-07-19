@@ -139,3 +139,64 @@ if (reportCopyrightBtn) {
         }
     });
 }
+
+// ==========================================
+// KENDİ VİDEOSUNU SİLME ÖZELLİĞİ
+// ==========================================
+const deleteMyVideoBtn = document.getElementById("deleteMyVideoBtn");
+
+// Eğer videoyu yükleyen kişi ile şu anki kullanıcı aynıysa butonu göster
+if (videoData && currentUsername !== "Misafir" && videoData.channel === currentUsername) {
+    if (deleteMyVideoBtn) {
+        deleteMyVideoBtn.style.display = "inline-block"; // Butonu görünür yap
+    }
+}
+
+if (deleteMyVideoBtn) {
+    deleteMyVideoBtn.addEventListener("click", async () => {
+        const confirmDelete = confirm("Bu videoyu kalıcı olarak silmek istediğinize emin misiniz? Bu işlem geri alınamaz.");
+        
+        if (!confirmDelete) return;
+
+        // 🚀 Arayüze yükleniyor hissiyatı verelim
+        deleteMyVideoBtn.disabled = true;
+        deleteMyVideoBtn.textContent = "Siliniyor...";
+
+        try {
+            // 1. Önce videonun storage'daki dosya adını URL'den çekmemiz gerekir.
+            // URL yapısı genelde ".../storage/v1/object/public/videos/dosya_adi.mp4" şeklindedir.
+            const urlParts = videoData.video_url.split('/');
+            const fileName = urlParts[urlParts.length - 1];
+
+            // 2. Supabase Storage'dan video dosyasını sil
+            const { error: storageError } = await supabase.storage
+                .from("videos")
+                .remove([fileName]);
+
+            if (storageError) {
+                console.warn("Storage dosya silme uyarısı:", storageError.message);
+                // Not: Dosya storage'dan silinirken hata çıksa bile DB'den silmeye devam etmesi için durdurmuyoruz.
+            }
+
+            // 3. Supabase Database (videos tablosundan) satırı sil
+            const { error: dbError } = await supabase
+                .from("videos")
+                .delete()
+                .eq("id", videoData.id);
+
+            if (dbError) {
+                throw new Error(dbError.message);
+            }
+
+            alert("✅ Videonuz başarıyla silindi.");
+            // Video silindiği için kullanıcıyı ana sayfaya yönlendir
+            window.location.href = "index.html";
+
+        } catch (error) {
+            console.error(error);
+            alert("Video silinirken bir hata oluştu: " + error.message);
+            deleteMyVideoBtn.disabled = false;
+            deleteMyVideoBtn.innerHTML = '<i class="fa-solid fa-trash-can"></i> Videomu Sil';
+        }
+    });
+}

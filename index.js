@@ -1,21 +1,38 @@
-
 import { supabase } from "./supabase.js";
 
-const loggedInUser = localStorage.getItem("username");
+// ===============================
+// Supabase Gerçek Oturum Kontrolü
+// ===============================
+async function checkAuth() {
+    // Supabase'den aktif oturum bilgisini alıyoruz
+    const { data: { session }, error } = await supabase.auth.getSession();
 
-if (!loggedInUser || loggedInUser === "Misafir") {
-    // Eğer kullanıcı giriş yapmadıysa direkt login sayfasına fırlatıyoruz
-    window.location.href = "login.html";
+    // Eğer oturum yoksa veya hata varsa direkt login sayfasına at
+    if (!session || error) {
+        localStorage.clear();
+        window.location.href = "login.html";
+        return;
+    }
+
+    // Giriş başarılıysa kullanıcının kanal adını profiles tablosundan çekelim
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('channel_name')
+        .eq('id', session.user.id)
+        .single();
+
+    const channelName = profile ? profile.channel_name : session.user.email.split('@')[0];
+    
+    // İsmi hem ekrana yazalım hem localStorage'a güncel atalım
+    localStorage.setItem("username", channelName);
+    document.getElementById("welcome").textContent = "Hoşgeldin " + channelName;
+
+    // Oturum doğrulandıktan sonra videoları yüklemesi için ana fonksiyonunuzu tetikleyin
+    // (Eğer videoları yükleyen fonksiyonun adı loadVideos ise buraya yazın veya kodunuz aşağıda akmaya devam etsin)
 }
 
-
-console.log(supabase);
-
-
-document.getElementById("welcome").textContent =
-"Hoşgeldin " + username;
-
-
+// Kontrolü başlatıyoruz
+checkAuth();
 // ===============================
 // Elemanlar
 // ===============================

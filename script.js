@@ -26,10 +26,15 @@ loginButton.addEventListener('click', async () => {
         password: password,
     });
 
+   
     if (error) {
         alert("Giriş başarısız: " + error.message);
         return;
     }
+
+    // Supabase oturumu başarıyla başlattıysa yönlendiriyoruz
+    alert("Giriş başarılı! Yönlendiriliyorsunuz...");
+    window.location.href = 'index.html';
 
     // Kullanıcının kanal adını profiles tablosundan çekelim
     const { data: profileData, error: profileError } = await supabase

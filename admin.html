@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>AgaTube - Yönetim Paneli</title>
+    <style>
+        body { font-family: sans-serif; background: #121212; color: white; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #333; padding: 12px; text-align: left; }
+        th { background: #222; }
+        button { background: #cc0000; color: white; border: none; padding: 6px 12px; cursor: pointer; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h2>Telif Hakkı Bildirimleri</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Video Adı</th>
+                <th>Şikayet Eden</th>
+                <th>Gerekçe</th>
+                <th>İşlem</th>
+            </tr>
+        </thead>
+        <tbody id="reportTableBody">
+            <!-- Raporlar buraya listelenecek -->
+        </tbody>
+    </table>
+
+    <script type="module" src="admin.js"></script>
+</body>
+</html>

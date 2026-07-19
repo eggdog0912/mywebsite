@@ -1,44 +1,37 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-
     <meta charset="UTF-8">
-
-    <title>AgaTube</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgaTube - Video İzle</title>
     <link rel="stylesheet" href="watch.css">
-
+    
+    <!-- 🚀 Butondaki ünlem ikonunun görünmesi için Font Awesome eklendi -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
-
 <body>
 
 <header>
-
-    <h2>AgaTube</h2>
-
+    <h2 style="cursor: pointer;" onclick="window.location.href='index.html'">AgaTube</h2>
 </header>
 
 <main>
-
-    <video
-    id="watchVideo"
-    controls>
-
-    </video>
-
+    <video id="watchVideo" controls></video>
     <h1 id="watchTitle"></h1>
-
     <h3 id="watchChannel"></h3>
-
     <p id="watchViews"></p>
+    
+    <!-- 🚀 Telif butonu main içerisine, bilgilerin hemen altına alındı -->
+    <button id="reportCopyrightBtn" style="background-color: #cc0000; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; margin-top: 10px;">
+        <i class="fa-solid fa-triangle-exclamation"></i> Telif Bildir
+    </button>
 
     <hr>
-
     <p id="watchDescription"></p>
-
 </main>
 
-<script src="watch.js"></script>
+<!-- 🚀 KRİTİK DÜZELTME: import yapısının çalışması için type="module" eklendi -->
+<script type="module" src="watch.js"></script>
 
 </body>
 </html>

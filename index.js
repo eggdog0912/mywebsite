@@ -1,6 +1,13 @@
 
 import { supabase } from "./supabase.js";
 
+const loggedInUser = localStorage.getItem("username");
+
+if (!loggedInUser || loggedInUser === "Misafir") {
+    // Eğer kullanıcı giriş yapmadıysa direkt login sayfasına fırlatıyoruz
+    window.location.href = "login.html";
+}
+
 
 console.log(supabase);
 

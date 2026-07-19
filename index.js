@@ -6,8 +6,9 @@ if (window.location.hostname !== "127.0.0.1" && window.location.hostname !== "lo
     console.warn = function() {};
 }
 
-// Global değişken (Dışarıdaki fonksiyonların da isme erişebilmesi için)
+// Global değişkenler
 let currentUsername = "Misafir";
+let allVideos = []; // Arama motorunun kullanacağı global video hafızası
 
 // ===============================
 // 1. SUPABASE GERÇEK OTURUM KONTROLÜ
@@ -56,6 +57,8 @@ const titleInput = document.getElementById("videoTitleInput");
 const descriptionInput = document.getElementById("videoDescription");
 const selectedVideo = document.getElementById("selectedVideo");
 const videoContainer = document.getElementById("videoContainer");
+const searchInput = document.getElementById("searchInput");
+const searchButton = document.getElementById("searchButton");
 
 // ===============================
 // Upload Butonu & Modal Kontrolleri
@@ -131,15 +134,13 @@ uploadVideo.addEventListener("click", async () => {
         .from("videos")
         .getPublicUrl(fileName);
 
-    // Veritabanına kaydedilecek objeyi oluştur (currentUsername global değişkenini kullanıyoruz)
-    // Artık videoData oluştur (uploadDate alanına gerçek zamanı ISO string olarak atıyoruz)
     const videoData = {
         title: titleInput.value.trim(),
         description: descriptionInput.value.trim(),
         channel: currentUsername, 
         video_url: publicUrlData.publicUrl,
         views: 0,
-        uploadDate: new Date().toISOString() // 🚀 Sabit yazı yerine gerçek zaman damgası
+        uploadDate: new Date().toISOString()
     };
 
     // Veritabanına Ekle
@@ -152,7 +153,7 @@ uploadVideo.addEventListener("click", async () => {
                 channel: videoData.channel,
                 video_url: videoData.video_url,
                 views: videoData.views,
-                upload_date: videoData.uploadDate // ISO String veritabanına gider
+                upload_date: videoData.uploadDate
             }
         ]);
 
@@ -181,29 +182,23 @@ function renderVideo(videoData) {
     const title = document.createElement("h3");
     title.textContent = videoData.title;
 
- const channel = document.createElement("p");
+    const channel = document.createElement("p");
     channel.textContent = videoData.channel;
     channel.style.cursor = "pointer";
-    channel.style.color = "#0066cc"; // Tıklanabilir olduğunu belli etmek için mavi renk veya hover efekti
+    channel.style.color = "#0066cc";
     
-    // Kanal ismine tıklanınca tetiklenecek olay
     channel.addEventListener("click", (event) => {
-        event.stopPropagation(); // 🚨 KRİTİK: Karta tıklayıp watch.html'e gitme eylemini durdurur!
-        
-        // Target kanalı kaydedip yönlendiriyoruz
+        event.stopPropagation(); // Karta tıklama eylemini durdurur
         localStorage.setItem("targetChannel", videoData.channel);
         window.location.href = `channel.html?name=${encodeURIComponent(videoData.channel)}`;
     });
 
-   const views = document.createElement("p");
-    // videoData.upload_date verisini timeAgo fonksiyonundan geçiriyoruz:
+    const views = document.createElement("p");
     views.textContent = videoData.views + " görüntülenme • " + timeAgo(videoData.upload_date);
 
-  card.addEventListener("click", async () => {
-        // 1. Tıklanan videonun izlenme sayısını anlık olarak 1 artırıyoruz
+    card.addEventListener("click", async () => {
         const updatedViews = (videoData.views || 0) + 1;
 
-        // 2. Supabase'de bu videonuk views alanını güncelliyoruz
         const { error } = await supabase
             .from("videos")
             .update({ views: updatedViews })
@@ -212,16 +207,13 @@ function renderVideo(videoData) {
         if (error) {
             console.error("İzlenme sayısı güncellenemedi:", error);
         } else {
-            // Eğer veritabanı başarıyla güncellendiyse, local objeyi de güncelleyelim
             videoData.views = updatedViews;
         }
 
-        // 3. watch.html sayfasının güncel veriyi okuyabilmesi için localStorage'a yazıyoruz
         localStorage.setItem("selectedVideo", JSON.stringify(videoData));
-
-        // 4. İzleme sayfasına yönlendiriyoruz
         window.location.href = "watch.html";
     });
+
     card.appendChild(video);
     card.appendChild(title);
     card.appendChild(channel);
@@ -255,13 +247,52 @@ async function loadVideos() {
         return;
     }
 
+    // Verileri küresel hafızaya alıp ekrana basma işini displayVideos'a aktarıyoruz
+    allVideos = data; 
+    displayVideos(allVideos);
+}
+
+// ===============================
+// ARAMA VE EKRANA BASMA MOTORU
+// ===============================
+function displayVideos(videosToRender) {
     videoContainer.innerHTML = "";
-    data.forEach(video => {
+
+    if (videosToRender.length === 0) {
+        videoContainer.innerHTML = "<p style='color: #aaa; text-align: center; grid-column: 1/-1; margin-top: 2rem;'>düzgün video arat la döllaç</p>";
+        return;
+    }
+
+    videosToRender.forEach(video => {
         renderVideo(video);
     });
 }
 
-// ISO Tarihini "X süre önce" formatına çeviren yardımcı fonksiyon
+function handleSearch() {
+    const query = searchInput.value.trim().toLowerCase();
+
+    // YouTube tarzı harf eşleşme filtresi (Başlık veya açıklama üzerinden)
+    const filteredVideos = allVideos.filter(video => {
+        const titleMatch = video.title ? video.title.toLowerCase().includes(query) : false;
+        const descMatch = video.description ? video.description.toLowerCase().includes(query) : false;
+        return titleMatch || descMatch;
+    });
+
+    displayVideos(filteredVideos);
+}
+
+// Arama Olayı Dinleyicileri (Anlık ve butonla arama)
+searchButton.addEventListener("click", handleSearch);
+searchInput.addEventListener("input", handleSearch);
+searchInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+        handleSearch();
+    }
+});
+
+// ===============================
+// YARDIMCI FONKSİYONLAR
+// ===============================
 function timeAgo(dateString) {
     const now = new Date();
     const past = new Date(dateString);
@@ -271,7 +302,6 @@ function timeAgo(dateString) {
 
     const elapsed = now - past;
 
-    // Eğer tarih geçerli değilse veya henüz yüklenmişse
     if (isNaN(elapsed) || elapsed < 0) {
         return "Az önce";
     }
@@ -283,12 +313,10 @@ function timeAgo(dateString) {
     } else if (elapsed < msPerDay) {
         return Math.round(elapsed / msPerHour) + ' saat önce';   
     } else {
-        // Gün hesabı
         const days = Math.round(elapsed / msPerDay);
         if (days === 1) return 'Dün';
         if (days < 30) return days + ' gün önce';
         
-        // 30 günden fazla ise normal tarih gösterelim
         return past.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
     }
 }

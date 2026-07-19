@@ -61,6 +61,111 @@ async function loadVideoStats() {
     }
 }
 
+// Sayfa yüklendiğinde abonelik durumunu da kontrol etmesi için kod tetikleyelim
+if (videoData) {
+    checkSubscriptionStatus();
+}
+
+// ==========================================
+// ABONELİK DURUMU KONTROLÜ VE ARAYÜZÜ
+// ==========================================
+// ==========================================
+// ABONELİK DURUMU VE ABONE SAYISI KONTROLÜ
+// ==========================================
+async function checkSubscriptionStatus() {
+    const subscribeBtn = document.getElementById("subscribeBtn");
+    const subCountSpan = document.getElementById("subCount");
+    if (!subscribeBtn || !subCountSpan) return;
+
+    // 1. Kanala ait TOPLAM abone sayısını veritabanından çek ve yazdır
+    const { count, error: countError } = await supabase
+        .from("subscriptions")
+        .select("*", { count: "exact", head: true }) // Sadece kaç satır olduğunu (count) çeker, veriyi indirmez (hızlıdır)
+        .eq("subscribed_to", videoData.channel);
+
+    if (!countError) {
+        subCountSpan.textContent = `${count || 0} abone`;
+    }
+
+    // 2. Kullanıcı kendi kanalının videosunu izliyorsa Abone Ol butonunu gizle
+    if (videoData.channel === currentUsername) {
+        subscribeBtn.style.display = "none";
+        return;
+    }
+
+    if (currentUsername === "Misafir") {
+        subscribeBtn.textContent = "Abone Ol";
+        subscribeBtn.style.backgroundColor = "#cc0000";
+        return;
+    }
+
+    // 3. Giriş yapan kullanıcının bu kanala abone olup olmadığını kontrol et
+    const { data: subData } = await supabase
+        .from("subscriptions")
+        .select("*")
+        .eq("subscriber", currentUsername)
+        .eq("subscribed_to", videoData.channel)
+        .single();
+
+    if (subData) {
+        // Zaten aboneyse
+        subscribeBtn.textContent = "Abonelikten Çık";
+        subscribeBtn.style.backgroundColor = "#303030";
+        subscribeBtn.style.color = "#aaa";
+    } else {
+        // Abone değilse
+        subscribeBtn.textContent = "Abone Ol";
+        subscribeBtn.style.backgroundColor = "#cc0000";
+        subscribeBtn.style.color = "white";
+    }
+}
+
+// ==========================================
+// ABONE OLMA / ABONELİKTEN ÇIKMA TETİKLEYİCİSİ
+// ==========================================
+const subscribeBtn = document.getElementById("subscribeBtn");
+if (subscribeBtn) {
+    subscribeBtn.addEventListener("click", async () => {
+        if (currentUsername === "Misafir") {
+            alert("Abone olabilmek için giriş yapmalısınız.");
+            return;
+        }
+
+        // Mevcut abonelik durumuna tekrar bakalım
+        const { data: subData } = await supabase
+            .from("subscriptions")
+            .select("*")
+            .eq("subscriber", currentUsername)
+            .eq("subscribed_to", videoData.channel)
+            .single();
+
+        if (subData) {
+            // Durum A: Zaten aboneyse abonelikten çıkar
+            const { error } = await supabase
+                .from("subscriptions")
+                .delete()
+                .eq("id", subData.id);
+
+            if (error) console.error("Abonelikten çıkılamadı:", error);
+        } else {
+            // Durum B: Abone değilse yeni abonelik satırı ekle
+            const { error } = await supabase
+                .from("subscriptions")
+                .insert([
+                    {
+                        subscriber: currentUsername,
+                        subscribed_to: videoData.channel
+                    }
+                ]);
+
+            if (error) console.error("Abone olunamadı:", error);
+        }
+
+        // Durumu yeniden kontrol edip arayüzü güncelle
+        checkSubscriptionStatus();
+    });
+}
+
 // ==========================================
 // REAKSİYON TETİKLEME FONKSİYONU (LIKE/DISLIKE)
 // ==========================================

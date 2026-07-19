@@ -186,11 +186,29 @@ function renderVideo(videoData) {
     const views = document.createElement("p");
     views.textContent = videoData.views + " görüntülenme • " + videoData.upload_date; 
 
-    card.addEventListener("click", () => {
+  card.addEventListener("click", async () => {
+        // 1. Tıklanan videonun izlenme sayısını anlık olarak 1 artırıyoruz
+        const updatedViews = (videoData.views || 0) + 1;
+
+        // 2. Supabase'de bu videonuk views alanını güncelliyoruz
+        const { error } = await supabase
+            .from("videos")
+            .update({ views: updatedViews })
+            .eq("id", videoData.id);
+
+        if (error) {
+            console.error("İzlenme sayısı güncellenemedi:", error);
+        } else {
+            // Eğer veritabanı başarıyla güncellendiyse, local objeyi de güncelleyelim
+            videoData.views = updatedViews;
+        }
+
+        // 3. watch.html sayfasının güncel veriyi okuyabilmesi için localStorage'a yazıyoruz
         localStorage.setItem("selectedVideo", JSON.stringify(videoData));
+
+        // 4. İzleme sayfasına yönlendiriyoruz
         window.location.href = "watch.html";
     });
-
     card.appendChild(video);
     card.appendChild(title);
     card.appendChild(channel);

@@ -1,9 +1,8 @@
-import { db } from "./firebase.js";
 
-import {
-    collection,
-    addDoc
-} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+import { supabase } from "./supabase.js";
+
+
+console.log(supabase);
 
 const username = localStorage.getItem("username") || "Misafir";
 
@@ -124,42 +123,72 @@ uploadVideo.addEventListener("click", async () => {
 
     console.log("4");
 
-    const videoData = {
-        file: file,
-        title: titleInput.value.trim(),
-        description: descriptionInput.value.trim(),
-        channel: username,
-        views: 0,
-        uploadDate: "Az önce"
-    };
+    // Dosya adını oluştur
+    const fileName = Date.now() + "-" + file.name;
 
-    console.log("5", videoData);
+    // Storage'a yükle
+ // Storage'a yükle
+const { error: uploadError } = await supabase.storage
+    .from("videos")
+    .upload(fileName, file);
 
-    try {
+if (uploadError) {
+    console.error(uploadError);
+    return;
+}
 
-        console.log("6");
+console.log("✅ Video Storage'a yüklendi!");
 
-        await addDoc(collection(db, "videos"), {
-            title: videoData.title,
-            description: videoData.description,
-            channel: videoData.channel,
-            views: videoData.views,
-            uploadDate: videoData.uploadDate
-        });
+// Public URL al
+const { data: publicUrlData } = supabase.storage
+    .from("videos")
+    .getPublicUrl(fileName);
 
-        console.log("7");
+// URL'yi kontrol et
+console.log(publicUrlData.publicUrl);
 
-    } catch(error){
+// Artık videoData oluştur
+const videoData = {
+    title: titleInput.value.trim(),
+    description: descriptionInput.value.trim(),
+    channel: username,
+    video_url: publicUrlData.publicUrl,
+    views: 0,
+    uploadDate: "Az önce"
+};
 
-    console.error("FIREBASE HATASI:");
-    console.error(error);
-    alert(error.message);
+
+
+    // Artık videoData'yı oluşturabiliriz
+
+
+  const { error: dbError } = await supabase
+.from("videos")
+.insert([
+    {
+        title: videoData.title,
+        description: videoData.description,
+        channel: videoData.channel,
+        video_url: videoData.video_url,
+        views: videoData.views,
+        // Sütun adını veritabanındaki gibi alt çizgili yaptık:
+        upload_date: videoData.uploadDate 
+    }
+]);
+    if (dbError) {
+
+    console.error(dbError);
+
+    alert(dbError.message);
+
+    return;
 
 }
 
-    console.log("8");
+    
 
-    renderVideo(videoData);
+    // Şimdilik sadece ekranda gösterelim
+   await loadVideos();
 
     closeUploadModal();
 
@@ -176,7 +205,7 @@ function renderVideo(videoData){
     card.className = "video-card";
 
     const video = document.createElement("video");
-    video.src = URL.createObjectURL(videoData.file);
+    video.src = videoData.video_url;
     video.controls = true;
 
     const title = document.createElement("h3");
@@ -186,10 +215,10 @@ const channel = document.createElement("p");
 channel.textContent = videoData.channel;
 
     const views = document.createElement("p");
-  views.textContent =
-    videoData.views +
-    " görüntülenme • " +
-    videoData.uploadDate;
+    views.textContent =
+  videoData.views +
+  " görüntülenme • " +
+  videoData.upload_date; 
     
 
 
@@ -199,10 +228,7 @@ channel.textContent = videoData.channel;
         JSON.stringify(videoData)
     );
 
-    localStorage.setItem(
-        "selectedVideoUrl",
-        URL.createObjectURL(videoData.file)
-    );
+  
 
 
     window.location.href="watch.html";
@@ -235,3 +261,28 @@ function closeUploadModal(){
     videoInput.value="";
 
 }
+async function loadVideos() {
+
+    const { data, error } = await supabase
+        .from("videos")
+        .select("*")
+        .order("id", { ascending: false });
+
+    if (error) {
+
+        console.error(error);
+
+        return;
+
+    }
+
+    videoContainer.innerHTML = "";
+
+    data.forEach(video => {
+
+        renderVideo(video);
+
+    });
+
+}
+loadVideos();

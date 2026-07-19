@@ -11,7 +11,7 @@ if (!targetChannel) {
 
 // Sayfa başlıklarını güncelleyelim
 document.getElementById("channelTitle").textContent = targetChannel + " - AgaTube";
-document.getElementById("channelNameDisplay").textContent = "📺 " + targetChannel;
+document.getElementById("channelNameDisplay").textContent = targetChannel;
 
 const channelVideoContainer = document.getElementById("channelVideoContainer");
 

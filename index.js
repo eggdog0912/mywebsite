@@ -132,13 +132,14 @@ uploadVideo.addEventListener("click", async () => {
         .getPublicUrl(fileName);
 
     // Veritabanına kaydedilecek objeyi oluştur (currentUsername global değişkenini kullanıyoruz)
+    // Artık videoData oluştur (uploadDate alanına gerçek zamanı ISO string olarak atıyoruz)
     const videoData = {
         title: titleInput.value.trim(),
         description: descriptionInput.value.trim(),
         channel: currentUsername, 
         video_url: publicUrlData.publicUrl,
         views: 0,
-        uploadDate: "Az önce"
+        uploadDate: new Date().toISOString() // 🚀 Sabit yazı yerine gerçek zaman damgası
     };
 
     // Veritabanına Ekle
@@ -151,7 +152,7 @@ uploadVideo.addEventListener("click", async () => {
                 channel: videoData.channel,
                 video_url: videoData.video_url,
                 views: videoData.views,
-                upload_date: videoData.uploadDate 
+                upload_date: videoData.uploadDate // ISO String veritabanına gider
             }
         ]);
 
@@ -194,8 +195,9 @@ function renderVideo(videoData) {
         window.location.href = `channel.html?name=${encodeURIComponent(videoData.channel)}`;
     });
 
-    const views = document.createElement("p");
-    views.textContent = videoData.views + " görüntülenme • " + videoData.upload_date; 
+   const views = document.createElement("p");
+    // videoData.upload_date verisini timeAgo fonksiyonundan geçiriyoruz:
+    views.textContent = videoData.views + " görüntülenme • " + timeAgo(videoData.upload_date);
 
   card.addEventListener("click", async () => {
         // 1. Tıklanan videonun izlenme sayısını anlık olarak 1 artırıyoruz
@@ -257,4 +259,36 @@ async function loadVideos() {
     data.forEach(video => {
         renderVideo(video);
     });
+}
+
+// ISO Tarihini "X süre önce" formatına çeviren yardımcı fonksiyon
+function timeAgo(dateString) {
+    const now = new Date();
+    const past = new Date(dateString);
+    const msPerMinute = 60 * 1000;
+    const msPerHour = msPerMinute * 60;
+    const msPerDay = msPerHour * 24;
+
+    const elapsed = now - past;
+
+    // Eğer tarih geçerli değilse veya henüz yüklenmişse
+    if (isNaN(elapsed) || elapsed < 0) {
+        return "Az önce";
+    }
+
+    if (elapsed < msPerMinute) {
+        return Math.round(elapsed / 1000) + ' saniye önce';   
+    } else if (elapsed < msPerHour) {
+        return Math.round(elapsed / msPerMinute) + ' dakika önce';   
+    } else if (elapsed < msPerDay) {
+        return Math.round(elapsed / msPerHour) + ' saat önce';   
+    } else {
+        // Gün hesabı
+        const days = Math.round(elapsed / msPerDay);
+        if (days === 1) return 'Dün';
+        if (days < 30) return days + ' gün önce';
+        
+        // 30 günden fazla ise normal tarih gösterelim
+        return past.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+    }
 }

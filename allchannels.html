@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgaTube - Tüm Kanallar</title>
+    <!-- Tasarımın tutarlı olması için channel.css'i kullanabiliriz -->
+    <link rel="stylesheet" href="channel.css"> 
+</head>
+<body>
+    <header>
+        <button id="anasayfab" onclick="window.location.href='index.html'"> Ana Sayfa</button>
+        <h1 id="channelTitle"> Tüm Kanallar</h1>
+    </header>
+
+    <main>
+        <section class="channel-banner">
+            <h2>Platformdaki Tüm Kanallar</h2>
+            <p>Aşağıdaki listeden dilediğiniz kanala tıklayarak yüklediği videolara göz atabilirsiniz.</p>
+        </section>
+
+        <!-- Kanalların yukarıdan aşağıya listeleneceği dikey container -->
+        <div id="channelsListContainer" style="display: flex; flex-direction: column; gap: 1rem; max-width: 600px; margin: 0 auto;"></div>
+    </main>
+
+    <!-- Supabase ve JS Bağlantısı -->
+     <script type="module" src="allchannels.js"></script>
+   
+</body>
+</html>

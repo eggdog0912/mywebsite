@@ -50,7 +50,7 @@ loginButton.addEventListener('click', async () => {
     }
 
     // Ana sayfaya yönlendir
-    window.location.href = 'index.html';
+    
 });
 
 // 📝 KAYIT OLMA FONKSİYONU (Kayıt linkine tıklandığında)

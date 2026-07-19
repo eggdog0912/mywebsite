@@ -94,6 +94,9 @@ videoInput.addEventListener("change", () => {
 // ===============================
 // Video Yükleme (Upload) İşlemi
 // ===============================
+// ===================================
+// "Yükle" Butonuna Basınca Çalışacak Kısım
+// ===================================
 uploadVideo.addEventListener("click", async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
@@ -108,79 +111,85 @@ uploadVideo.addEventListener("click", async () => {
         return;
     }
 
-    if (titleInput.value.trim() === "") {
+    // Modal içindeki videoTitleInput kontrolü
+    const titleInput = document.getElementById("videoTitleInput");
+    if (!titleInput || titleInput.value.trim() === "") {
         alert("Video başlığı boş olamaz.");
         return;
     }
 
-    // 🚀 DOSYA ADINI TÜRKÇE KARAKTERLERDEN VE BOŞLUKLARDAN TEMİZLEME (YENİ)
-    let safeFileName = file.name
-        .toLowerCase()
-        .replace(/ğ/g, 'g')
-        .replace(/ü/g, 'u')
-        .replace(/ş/g, 's')
-        .replace(/ı/g, 'i')
-        .replace(/ö/g, 'o')
-        .replace(/ç/g, 'c')
-        .replace(/[^a-z0-9.]/g, '-') // Harf, rakam ve nokta dışındaki her şeyi (boşluklar dahil) tire yap
-        .replace(/-+/g, '-');        // Yan yana gelen birden fazla tireyi teke indir
-
-    // Benzersiz olması için başına zaman damgası ekle
-    const fileName = Date.now() + "-" + safeFileName;
-
-    // Storage'a yükle
-    const { error: uploadError } = await supabase.storage
-        .from("videos")
-        .upload(fileName, file);
-
-    if (uploadError) {
-        console.error(uploadError);
-        alert("Video yüklenirken hata oluştu: " + uploadError.message);
-        return;
+    // 🚀 "Yükle"ye basıldığı an yükleniyor ekranını görünür yapıyoruz
+    const loadingOverlay = document.getElementById("loadingOverlay");
+    if (loadingOverlay) {
+        loadingOverlay.style.display = "flex";
     }
 
-    console.log("✅ Video Storage'a güvenli isimle yüklendi!");
+    try {
+        // Dosya adını temizleme işlemi
+        let safeFileName = file.name
+            .toLowerCase()
+            .replace(/ğ/g, 'g')
+            .replace(/ü/g, 'u')
+            .replace(/ş/g, 's')
+            .replace(/ı/g, 'i')
+            .replace(/ö/g, 'o')
+            .replace(/ç/g, 'c')
+            .replace(/[^a-z0-9.]/g, '-') 
+            .replace(/-+/g, '-');        
 
-    // Public URL al
-    const { data: publicUrlData } = supabase.storage
-        .from("videos")
-        .getPublicUrl(fileName);
+        const fileName = Date.now() + "-" + safeFileName;
 
-    const videoData = {
-        title: titleInput.value.trim(),
-        description: descriptionInput.value.trim(),
-        channel: currentUsername, 
-        video_url: publicUrlData.publicUrl,
-        views: 0,
-        uploadDate: new Date().toISOString()
-    };
+        // 1. Supabase Storage'a yükle
+        const { error: uploadError } = await supabase.storage
+            .from("videos")
+            .upload(fileName, file);
 
-    // Veritabanına Ekle
-    const { error: dbError } = await supabase
-        .from("videos")
-        .insert([
-            {
-                title: videoData.title,
-                description: videoData.description,
-                channel: videoData.channel,
-                video_url: videoData.video_url,
-                views: videoData.views,
-                upload_date: videoData.uploadDate
-            }
-        ]);
+        if (uploadError) {
+            throw new Error("Storage hatası: " + uploadError.message);
+        }
 
-    if (dbError) {
-        console.error(dbError);
-        alert("Veritabanı kaydı başarısız: " + dbError.message);
-        return;
+        // Public URL al
+        const { data: publicUrlData } = supabase.storage
+            .from("videos")
+            .getPublicUrl(fileName);
+
+        const descriptionInput = document.getElementById("videoDescription");
+
+        // 2. Veritabanına (Database) Kaydet
+        const { error: dbError } = await supabase
+            .from("videos")
+            .insert([
+                {
+                    title: titleInput.value.trim(),
+                    description: descriptionInput ? descriptionInput.value.trim() : "",
+                    channel: currentUsername, 
+                    video_url: publicUrlData.publicUrl,
+                    views: 0,
+                    upload_date: new Date().toISOString()
+                }
+            ]);
+
+        if (dbError) {
+            throw new Error("Veritabanı hatası: " + dbError.message);
+        }
+
+        // İşlem sorunsuz bittiğinde
+        alert("✅ Video başarıyla yüklendi!");
+        await loadVideos();
+        closeUploadModal();
+
+    } catch (error) {
+        console.error(error);
+        alert("Hata oluştu: " + error.message);
+    } finally {
+        // 🚀 İşlem ister başarılı bitsin ister hata versin, yükleniyor ekranını kapatıyoruz
+        if (loadingOverlay) {
+            loadingOverlay.style.display = "none";
+        }
     }
-
-    // Videoları yeniden yükle ve modalı kapat
-    await loadVideos();
-    closeUploadModal();
 });
 
-// ===============================
+// ===============================  
 // Video Kartı Oluşturma (Render)
 // ===============================
 function renderVideo(videoData) {

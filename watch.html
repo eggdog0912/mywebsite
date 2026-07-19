@@ -30,6 +30,17 @@
     <p id="watchDescription"></p>
 </main>
 
+<!-- Beğenme ve Beğenmeme Buton Alanı -->
+<div class="reaction-container" style="margin-top: 15px; display: flex; gap: 10px;">
+    <button id="likeBtn" style="background-color: #272727; color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+        <i class="fa-solid fa-thumbs-up"></i> <span id="likeCount">0</span>
+    </button>
+    
+    <button id="dislikeBtn" style="background-color: #272727; color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+        <i class="fa-solid fa-thumbs-down"></i> <span id="dislikeCount">0</span>
+    </button>
+</div>
+
 <!-- 🚀 KRİTİK DÜZELTME: import yapısının çalışması için type="module" eklendi -->
 <script type="module" src="watch.js"></script>
 

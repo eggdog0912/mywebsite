@@ -305,3 +305,116 @@ if (deleteMyVideoBtn) {
         }
     });
 }
+// Sayfa ilk yüklendiğinde yorumları getirmesi için fonksiyonu tetikleyelim
+if (videoData) {
+    loadComments();
+}
+
+// ==========================================
+// VİDEO YORUMLARINI YÜKLE VE LİSTELE
+// ==========================================
+async function loadComments() {
+    const commentsList = document.getElementById("commentsList");
+    const commentCountSpan = document.getElementById("commentCount");
+    if (!commentsList || !commentCountSpan) return;
+
+    commentsList.innerHTML = ""; // Listeyi temizle
+
+    // Veritabanından bu videoya ait yorumları en yeniden en eskiye doğru çekiyoruz
+    const { data: comments, error } = await supabase
+        .from("video_comments")
+        .select("*")
+        .eq("video_id", videoData.id)
+        .order("created_at", { ascending: false });
+
+    if (error) {
+        console.error("Yorumlar yüklenirken hata oluştu:", error);
+        return;
+    }
+
+    // Toplam yorum sayısını yazdır
+    commentCountSpan.textContent = comments.length;
+
+    if (comments.length === 0) {
+        commentsList.innerHTML = '<p style="color: #888; font-style: italic;">Henüz yorum yapılmamış. İlk yorumu sen yap!</p>';
+        return;
+    }
+
+    // Yorumları HTML içine ekle
+    comments.forEach(comment => {
+        const commentDiv = document.createElement("div");
+        commentDiv.style.borderBottom = "1px solid #222";
+        commentDiv.style.paddingBottom = "10px";
+
+        // Yorum tarihi formatlama
+        const commentDate = new Date(comment.created_at).toLocaleDateString('tr-TR', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+
+        commentDiv.innerHTML = `
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <strong style="color: #3ea6ff;">@${comment.username}</strong>
+                <span style="color: #606060; font-size: 12px;">${commentDate}</span>
+            </div>
+            <p style="margin: 0; color: #ddd; line-height: 1.4;">${comment.comment_text}</p>
+        `;
+
+        commentsList.appendChild(commentDiv);
+    });
+}
+
+// ==========================================
+// YENİ YORUM GÖNDERME İŞLEMİ
+// ==========================================
+const submitCommentBtn = document.getElementById("submitCommentBtn");
+const commentInput = document.getElementById("commentInput");
+
+if (submitCommentBtn && commentInput) {
+    submitCommentBtn.addEventListener("click", async () => {
+        if (currentUsername === "Misafir") {
+            alert("Yorum yapabilmek için giriş yapmalısınız.");
+            return;
+        }
+
+        const commentText = commentInput.value.trim();
+        if (commentText === "") {
+            alert("Boş yorum gönderemezsiniz.");
+            return;
+        }
+
+        submitCommentBtn.disabled = true;
+        submitCommentBtn.textContent = "Gönderiliyor...";
+
+        // Supabase tablosuna yorum ekleme
+        const { error } = await supabase
+            .from("video_comments")
+            .insert([
+                {
+                    video_id: videoData.id,
+                    username: currentUsername,
+                    comment_text: commentText
+                }
+            ]);
+
+        submitCommentBtn.disabled = false;
+        submitCommentBtn.textContent = "Yorum Yap";
+
+        if (error) {
+            alert("Yorum gönderilirken hata oluştu: " + error.message);
+        } else {
+            commentInput.value = ""; // Girdi kutusunu temizle
+            loadComments(); // Yorum listesini anlık olarak yenile
+        }
+    });
+
+    // Enter tuşuna basınca da yorumu göndermesi için kısayol
+    commentInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+            submitCommentBtn.click();
+        }
+    });
+}

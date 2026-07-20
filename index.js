@@ -341,3 +341,79 @@ function timeAgo(dateString) {
         return past.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
     }
 }
+
+// ==========================================
+// GÜNCELLEME NOTLARI AÇILIR PENCERE (MODAL)
+// ==========================================
+const openUpdateNotesBtn = document.getElementById("openUpdateNotesBtn");
+const closeUpdateNotesBtn = document.getElementById("closeUpdateNotesBtn");
+const updateNotesModal = document.getElementById("updateNotesModal");
+const modalUpdateNotesList = document.getElementById("modalUpdateNotesList");
+
+// 1. Penceremizi Açma ve Notları Yükleme
+if (openUpdateNotesBtn && updateNotesModal) {
+    openUpdateNotesBtn.addEventListener("click", () => {
+        updateNotesModal.style.display = "flex"; // Pencereyi görünür yap
+        loadModalUpdateNotes(); // Notları veritabanından çek
+    });
+}
+
+// 2. Kapat Butonuna Basınca Kapatma
+if (closeUpdateNotesBtn && updateNotesModal) {
+    closeUpdateNotesBtn.addEventListener("click", () => {
+        updateNotesModal.style.display = "none";
+    });
+}
+
+// 3. Ekranın Boş Bir Yerine Tıklayınca da Kapatma
+window.addEventListener("click", (event) => {
+    if (event.target === updateNotesModal) {
+        updateNotesModal.style.display = "none";
+    }
+});
+
+// 4. Veritabanından Notları Çekip Pencereye Basan Fonksiyon
+async function loadModalUpdateNotes() {
+    if (!modalUpdateNotesList) return;
+
+    modalUpdateNotesList.innerHTML = '<p style="color: #aaa; text-align: center;">Yükleniyor...</p>';
+
+    const { data: notes, error } = await supabase
+        .from("update_notes")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+    if (error) {
+        console.error("Güncelleme notları çekilemedi:", error);
+        modalUpdateNotesList.innerHTML = '<p style="color: #ff4d4d;">Notlar yüklenirken hata oluştu.</p>';
+        return;
+    }
+
+    if (notes.length === 0) {
+        modalUpdateNotesList.innerHTML = '<p style="color: #777; text-align: center;">Henüz hiç güncelleme notu yayınlanmamış.</p>';
+        return;
+    }
+
+    modalUpdateNotesList.innerHTML = ""; // Yükleniyor yazısını temizle
+
+    notes.forEach(note => {
+        const noteDate = new Date(note.created_at).toLocaleDateString('tr-TR', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        });
+
+        const noteCard = document.createElement("div");
+        noteCard.style.cssText = "background: #2a2a2a; padding: 15px; border-radius: 8px; border-left: 4px solid #3ea6ff;";
+
+        noteCard.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <strong style="color: #fff; font-size: 15px;">${note.title}</strong>
+                <span style="color: #aaa; font-size: 12px;">${noteDate}</span>
+            </div>
+            <p style="margin: 0; color: #ddd; line-height: 1.5; font-size: 13px; white-space: pre-wrap;">${note.content}</p>
+        `;
+
+        modalUpdateNotesList.appendChild(noteCard);
+    });
+}

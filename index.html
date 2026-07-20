@@ -28,6 +28,7 @@
     }
 </style>
 
+
     <!-- HEADER -->
     <header>
 
@@ -76,6 +77,33 @@
                 <i class="fa-solid fa-house"></i>
                 Ana Sayfa
             </button>
+
+            <!-- SOL MENÜDEKİ BUTON -->
+<button id="openUpdateNotesBtn" class="sidebar-item" style="display: flex; align-items: center; gap: 15px; width: 100%; padding: 10px 15px; background: transparent; border: none; color: white; cursor: pointer; font-size: 14px; border-radius: 8px; transition: background 0.2s;">
+    <i class="fa-solid fa-bullhorn" style="font-size: 18px; color: #ffffff;"></i>
+    <span>Güncelleme Notları</span>
+</button>
+
+
+<!-- AÇILACAK PENCERE (MODAL) -->
+<div id="updateNotesModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 1000; justify-content: center; align-items: center;">
+    <div style="background: #212121; width: 90%; max-width: 500px; max-height: 80vh; border-radius: 12px; border: 1px solid #333; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+        
+        <!-- Başlık ve Kapat Butonu -->
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid #333; background: #181818;">
+            <h3 style="margin: 0; color: #fff; font-size: 18px; display: flex; align-items: center; gap: 10px;">
+                <i class="fa-solid fa-bullhorn" style="color: #3ea6ff;"></i> Güncelleme Notları
+            </h3>
+            <button id="closeUpdateNotesBtn" style="background: transparent; border: none; color: #aaa; font-size: 20px; cursor: pointer; padding: 0 5px;">&times;</button>
+        </div>
+
+        <!-- Not Listesi İçeriği -->
+        <div id="modalUpdateNotesList" style="padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px;">
+            <!-- JavaScript burayı dolduracak -->
+        </div>
+
+    </div>
+</div>
 
             <!-- 🚀 İkonun içindeki hatalı ikinci onclick temizlendi -->
             <button onclick="window.location.href='allchannels.html'">

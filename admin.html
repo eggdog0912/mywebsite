@@ -27,6 +27,20 @@
         </tbody>
     </table>
 
+    <hr style="margin: 30px 0; border-color: #333;">
+
+<h2>📢 Güncelleme Notu Ekle</h2>
+<div style="display: flex; flex-direction: column; gap: 10px; max-width: 500px;">
+    <input type="text" id="noteTitle" placeholder="Güncelleme Başlığı (Örn: v1.1 - Likelar ve Yorumlar Geldi!)" style="padding: 10px; background: #222; color: white; border: 1px solid #444; border-radius: 4px;">
+    <textarea id="noteContent" placeholder="Güncelleme detaylarını yazın..." rows="4" style="padding: 10px; background: #222; color: white; border: 1px solid #444; border-radius: 4px;"></textarea>
+    <button id="addNoteBtn" style="background: #28a745; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; font-weight: bold;">Notu Yayınla</button>
+</div>
+
+<h3>Yayınlanmış Güncelleme Notları</h3>
+<ul id="adminNotesList" style="list-style: none; padding: 0;">
+    <!-- Notlar buraya listelenecek -->
+</ul>
+
     <script type="module" src="admin.js"></script>
 </body>
 </html>

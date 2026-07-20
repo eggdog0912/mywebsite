@@ -48,3 +48,73 @@ async function loadReports() {
 }
 
 loadReports();
+
+// ==========================================
+// GÜNCELLEME NOTLARI YÖNETİMİ
+// ==========================================
+async function loadAdminNotes() {
+    const adminNotesList = document.getElementById("adminNotesList");
+    if (!adminNotesList) return;
+    adminNotesList.innerHTML = "";
+
+    const { data: notes, error } = await supabase
+        .from("update_notes")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+    if (error) return console.error(error);
+
+    notes.forEach(note => {
+        const li = document.createElement("li");
+        li.style.cssText = "background: #1e1e1e; padding: 10px; margin-bottom: 10px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;";
+        li.innerHTML = `
+            <div>
+                <strong style="color: #3ea6ff;">${note.title}</strong>
+                <p style="margin: 5px 0 0 0; color: #ccc; font-size: 14px;">${note.content}</p>
+            </div>
+            <button class="delete-note-btn" data-id="${note.id}" style="background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Sil</button>
+        `;
+        adminNotesList.appendChild(li);
+    });
+
+    // Silme butonlarına olay ekle
+    document.querySelectorAll(".delete-note-btn").forEach(btn => {
+        btn.addEventListener("click", async (e) => {
+            const id = e.target.getAttribute("data-id");
+            if (confirm("Bu güncelleme notunu silmek istediğinize emin misiniz?")) {
+                await supabase.from("update_notes").delete().eq("id", id);
+                loadAdminNotes();
+            }
+        });
+    });
+}
+
+// Not Ekleme Butonu
+const addNoteBtn = document.getElementById("addNoteBtn");
+if (addNoteBtn) {
+    addNoteBtn.addEventListener("click", async () => {
+        const title = document.getElementById("noteTitle").value.trim();
+        const content = document.getElementById("noteContent").value.trim();
+
+        if (!title || !content) {
+            alert("Lütfen başlık ve içerik alanlarını doldurun.");
+            return;
+        }
+
+        const { error } = await supabase
+            .from("update_notes")
+            .insert([{ title, content }]);
+
+        if (error) {
+            alert("Hata oluştu: " + error.message);
+        } else {
+            document.getElementById("noteTitle").value = "";
+            document.getElementById("noteContent").value = "";
+            alert(" Güncelleme notu başarıyla yayınlandı!");
+            loadAdminNotes();
+        }
+    });
+}
+
+// Sayfa açıldığında notları yükle
+loadAdminNotes();

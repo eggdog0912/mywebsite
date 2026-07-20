@@ -55,6 +55,24 @@
     </button>
 </div>
 
+<!-- ========================================== -->
+<!-- YORUMLAR ALANI -->
+<!-- ========================================== -->
+<section class="comments-section" style="margin-top: 30px; font-family: sans-serif;">
+    <h3>Yorumlar (<span id="commentCount">0</span>)</h3>
+    
+    <!-- Yorum Ekleme Formu -->
+    <div class="add-comment-box" style="display: flex; gap: 10px; margin-bottom: 20px;">
+        <input type="text" id="commentInput" placeholder="Yorum ekleyin..." style="flex: 1; padding: 10px; border: 1px solid #333; background: #1f1f1f; color: white; border-radius: 4px;">
+        <button id="submitCommentBtn" style="background: #cc0000; color: white; border: none; padding: 10px 20px; border-radius: 4px; font-weight: bold; cursor: pointer;">Yorum Yap</button>
+    </div>
+
+    <!-- Yorumların Listeleneceği Yer -->
+    <div id="commentsList" style="display: flex; flex-direction: column; gap: 15px;">
+        <!-- JavaScript ile yorumlar buraya akacak -->
+    </div>
+</section>
+
 <!-- 🚀 KRİTİK DÜZELTME: import yapısının çalışması için type="module" eklendi -->
 <script type="module" src="watch.js"></script>
 

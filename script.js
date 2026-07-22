@@ -108,6 +108,14 @@ registerLink.addEventListener('click', async (e) => {
         console.log("Kullanıcı oluşturuldu, profil tablosuna yazılıyor...", data.user.id);
         
         // Kullanıcı başarıyla oluştuysa profiles tablosuna kanal adını ekle
+
+        // Sağ üstteki kullanıcı profil butonuna tıklayınca kendi kanalına git
+const userProfileLink = document.getElementById("userProfileLink"); // Sağ üstteki profil alanının ID'si
+
+if (userProfileLink && currentUser) {
+    userProfileLink.href = `channel.html?id=${currentUser.id}`;
+    userProfileLink.style.cursor = "pointer";
+}
         const { error: profileError } = await supabase
             .from('profiles')
             .insert([

@@ -1,49 +1,243 @@
 import { supabase } from "./supabase.js";
 
-// URL'den veya hafızadan hangi kanala bakıldığını alalım
 const urlParams = new URLSearchParams(window.location.search);
-const targetChannel = urlParams.get("name") || localStorage.getItem("targetChannel");
-
-if (!targetChannel) {
-    alert("Kanal bulunamadı!");
-    window.location.href = "index.html";
-}
-
-// Sayfa başlıklarını güncelleyelim
-document.getElementById("channelTitle").textContent = targetChannel + " - AgaTube";
-document.getElementById("channelNameDisplay").textContent = targetChannel;
+const channelId = urlParams.get('id');
+const targetChannelName = urlParams.get('name') || localStorage.getItem("targetChannel");
 
 const channelVideoContainer = document.getElementById("channelVideoContainer");
 
-// ===============================
-// Sadece Bu Kanala Ait Videoları Yükle
-// ===============================
-async function loadChannelVideos() {
-    // 🔥 Filtreleme Adımı: .eq("channel", targetChannel) ile sadece bu kanalın videolarını seçiyoruz
+async function loadChannelPage() {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    let profile = null;
+    let currentChannelName = "";
+
+    // 1. Profili ID veya Kanal İsmine göre çek
+    if (channelId) {
+        const { data } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', channelId)
+            .maybeSingle();
+        profile = data;
+    } 
+    
+    if (!profile && targetChannelName) {
+        const { data } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('channel_name', targetChannelName)
+            .maybeSingle();
+        profile = data;
+    }
+
+    currentChannelName = profile?.channel_name || targetChannelName || "Kanal";
+
+    // Sayfa Başlıkları
+    document.getElementById("channelTitle").textContent = currentChannelName + " - AgaTube";
+    document.getElementById('channelName').innerText = currentChannelName;
+    document.getElementById('channelBio').innerText = profile?.bio || "Açıklama girilmemiş.";
+
+    // Banner Görseli
+    if (profile?.banner_url) {
+        document.getElementById('channelBanner').style.backgroundImage = `url('${profile.banner_url}')`;
+    }
+
+    // Avatar (Profil Fotoğrafı)
+    const avatarImg = document.getElementById('channelAvatar');
+    if (profile?.avatar_url) {
+        avatarImg.src = profile.avatar_url;
+        avatarImg.style.display = "block";
+    } else {
+        avatarImg.style.display = "none";
+    }
+
+    // Tema Rengi
+    const customColor = profile?.custom_color || "#3ea6ff";
+    const channelNameEl = document.getElementById('channelName');
+    applyCustomColor(customColor, channelNameEl);
+
+    // Kendi Kanalıysa Butonları Aç ve Dinleyicileri Ekle
+    const isOwner = user && (user.id === channelId || profile?.id === user.id);
+    if (isOwner) {
+        document.getElementById('uploadBannerBtn').style.display = "block";
+        document.getElementById('uploadAvatarBtn').style.display = "flex";
+        document.getElementById('colorPickerContainer').style.display = "flex";
+        
+        // ✏️ AÇIKLAMA DÜZENLEME BUTONUNU AÇ
+        const editBioBtn = document.getElementById('editBioBtn');
+        if (editBioBtn) {
+            editBioBtn.style.display = "inline-block";
+            
+            editBioBtn.onclick = async () => {
+                const currentBio = profile?.bio || "";
+                const newBio = prompt("Yeni kanal açıklamasını girin:", currentBio);
+                
+                if (newBio !== null) {
+                    const trimmedBio = newBio.trim();
+                    
+                    const { error } = await supabase
+                        .from('profiles')
+                        .update({ bio: trimmedBio })
+                        .eq('id', user.id);
+
+                    if (error) {
+                        alert("Açıklama güncellenemedi: " + error.message);
+                    } else {
+                        document.getElementById('channelBio').innerText = trimmedBio || "Açıklama girilmemiş.";
+                        if (profile) profile.bio = trimmedBio;
+                        alert("Açıklama başarıyla güncellendi!");
+                    }
+                }
+            };
+        }
+
+        // Tema Rengi Seçici
+        const colorPicker = document.getElementById('themeColorPicker');
+        if (colorPicker) {
+            colorPicker.value = customColor;
+            colorPicker.addEventListener('change', async (e) => {
+                const newColor = e.target.value;
+                applyCustomColor(newColor, channelNameEl);
+                await supabase.from('profiles').update({ custom_color: newColor }).eq('id', user.id);
+            });
+        }
+
+        // Banner Yükleme
+        document.getElementById('bannerInput').addEventListener('change', (e) => {
+            uploadImage(e.target.files[0], 'banner_url', user.id);
+        });
+
+        // Profil Fotoğrafı Yükleme
+        document.getElementById('avatarInput').addEventListener('change', (e) => {
+            uploadImage(e.target.files[0], 'avatar_url', user.id);
+        });
+    }
+
+    // 2. İstatistikleri ve Videoları Yükle
+    loadChannelStatistics(currentChannelName, profile?.id);
+    loadChannelVideos(currentChannelName);
+}
+
+// 📤 GÖRSEL YÜKLEME FONKSİYONU
+async function uploadImage(file, fieldName, userId) {
+    if (!file) return;
+
+    try {
+        const fileExt = file.name.split('.').pop();
+        const filePath = `${userId}/${fieldName}_${Date.now()}.${fileExt}`;
+
+        // 1. Storage'a Yükle
+        const { error: uploadError } = await supabase.storage
+            .from('avatars')
+            .upload(filePath, file, { upsert: true });
+
+        if (uploadError) throw uploadError;
+
+        // 2. Public URL Al
+        const { data: { publicUrl } } = supabase.storage
+            .from('avatars')
+            .getPublicUrl(filePath);
+
+        // 3. Profiles Tablosunu Güncelle
+        const { error: updateError } = await supabase
+            .from('profiles')
+            .update({ [fieldName]: publicUrl })
+            .eq('id', userId);
+
+        if (updateError) throw updateError;
+
+        // 4. Arayüzde Anında Göster
+        if (fieldName === 'banner_url') {
+            document.getElementById('channelBanner').style.backgroundImage = `url('${publicUrl}')`;
+        } else if (fieldName === 'avatar_url') {
+            const avatarImg = document.getElementById('channelAvatar');
+            avatarImg.src = publicUrl;
+            avatarImg.style.display = "block";
+        }
+
+        alert("Görsel başarıyla yüklendi!");
+
+    } catch (err) {
+        console.error("Yükleme hatası:", err);
+        alert("Görsel yüklenirken bir sorun oluştu: " + err.message);
+    }
+}
+
+// Tema Rengini Sayfaya Uygulama
+function applyCustomColor(color, nameElement) {
+    if (nameElement) nameElement.style.color = color;
+    document.documentElement.style.setProperty('--user-theme-color', color);
+    
+    const styleTag = document.getElementById('customColorStyles') || document.createElement('style');
+    styleTag.id = 'customColorStyles';
+    styleTag.innerHTML = `
+        .video-card { border-top: 3px solid ${color} !important; }
+        .video-title { color: ${color} !important; }
+    `;
+    document.head.appendChild(styleTag);
+}
+
+// 📊 İSTATİSTİK HESAPLAMA
+async function loadChannelStatistics(channelName, userId) {
+    try {
+        const { count: subCount } = await supabase
+            .from('subscriptions')
+            .select('*', { count: 'exact', head: true })
+            .or(`subscribed_to.eq.${channelName},subscribed_to.eq.${userId}`);
+
+        const { data: videos } = await supabase
+            .from('videos')
+            .select('views, likes_count')
+            .eq('channel', channelName);
+
+        let totalViews = 0;
+        let totalLikes = 0;
+
+        if (videos && videos.length > 0) {
+            videos.forEach(v => {
+                totalViews += Number(v.views || 0);
+                totalLikes += Number(v.likes_count || 0);
+            });
+        }
+
+        document.getElementById('statSubs').innerText = subCount || 0;
+        document.getElementById('statViews').innerText = totalViews;
+        document.getElementById('statLikes').innerText = totalLikes;
+
+    } catch (err) {
+        console.error("İstatistik hatası:", err);
+    }
+}
+
+// Modal Aç/Kapat Mantığı
+const showStatsBtn = document.getElementById('showStatsBtn');
+const closeStatsBtn = document.getElementById('closeStatsBtn');
+const statsModal = document.getElementById('statsModal');
+
+if (showStatsBtn && statsModal) showStatsBtn.onclick = () => statsModal.style.display = 'flex';
+if (closeStatsBtn && statsModal) closeStatsBtn.onclick = () => statsModal.style.display = 'none';
+
+// 🎬 KANAL VİDEOLARINI YÜKLE
+async function loadChannelVideos(channelName) {
+    if (!channelVideoContainer) return;
+
     const { data, error } = await supabase
         .from("videos")
         .select("*")
-        .eq("channel", targetChannel)
+        .eq("channel", channelName)
         .order("id", { ascending: false });
 
-    if (error) {
-        console.error("Kanal videoları yüklenemedi:", error);
+    if (error || !data || data.length === 0) {
+        channelVideoContainer.innerHTML = "<p style='color: #888; padding: 10px;'>Bu kanal henüz hiç video yüklememiş.</p>";
         return;
     }
 
     channelVideoContainer.innerHTML = "";
-
-    if (data.length === 0) {
-        channelVideoContainer.innerHTML = "<p>Bu kanal henüz hiç video yüklememiş.</p>";
-        return;
-    }
-
-    data.forEach(video => {
-        renderVideoCard(video);
-    });
+    data.forEach(video => renderVideoCard(video));
 }
 
-// Video kartlarını ekrana basan fonksiyon (index.js'deki yapının aynısı)
+// Video Kartlarını Oluşturma
 function renderVideoCard(videoData) {
     const card = document.createElement("div");
     card.className = "video-card";
@@ -53,12 +247,14 @@ function renderVideoCard(videoData) {
     video.controls = true;
 
     const title = document.createElement("h3");
+    title.className = "video-title";
     title.textContent = videoData.title;
 
     const views = document.createElement("p");
-    views.textContent = videoData.views + " görüntülenme • " + videoData.upload_date;
+    views.textContent = (videoData.views || 0) + " görüntülenme";
 
-    card.addEventListener("click", () => {
+    card.addEventListener("click", (e) => {
+        if (e.target.tagName === 'VIDEO') return;
         localStorage.setItem("selectedVideo", JSON.stringify(videoData));
         window.location.href = "watch.html";
     });
@@ -69,5 +265,5 @@ function renderVideoCard(videoData) {
     channelVideoContainer.appendChild(card);
 }
 
-// Videoları getir
-loadChannelVideos();
+// Sayfa Başlatıcı
+loadChannelPage();

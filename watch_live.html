@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgaTube - Yayın İzle</title>
+    <link rel="stylesheet" href="channel.css">
+    <style>
+        .live-container { display: flex; gap: 20px; padding: 20px; max-width: 1400px; margin: 0 auto; }
+        .video-section { flex: 3; }
+        #playerContainer { width: 100%; height: 500px; background: #000; border-radius: 12px; overflow: hidden; }
+        .chat-section { flex: 1; background: #181818; border-radius: 12px; border: 1px solid #282828; display: flex; flex-direction: column; height: 500px; }
+        .chat-messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .chat-msg { font-size: 14px; color: #eee; }
+        .chat-msg strong { color: #3ea6ff; }
+        .chat-input-area { display: flex; padding: 10px; border-top: 1px solid #282828; gap: 8px; }
+        .chat-input-area input { flex: 1; background: #0f0f0f; border: 1px solid #333; color: white; padding: 8px 12px; border-radius: 6px; }
+    </style>
+</head>
+<body>
+    <header style="padding: 10px 20px; background: #181818; border-bottom: 1px solid #282828;">
+        <button onclick="window.location.href='livestreams.html'" style="padding: 8px 14px; background: #272727; color: white; border: 1px solid #3a3a3a; border-radius: 6px; cursor: pointer;">
+            ← Canlı Yayınlara Dön
+        </button>
+    </header>
+
+    <main class="live-container">
+        <div class="video-section">
+            <div id="playerContainer"></div>
+            <h2 id="streamTitle" style="color: white; margin-top: 15px;">Canlı Yayın</h2>
+            <p id="streamerName" style="color: #3ea6ff; font-weight: bold;"></p>
+        </div>
+
+        <div class="chat-section">
+            <h3 style="color: white; margin: 0; padding: 12px; border-bottom: 1px solid #282828;">💬 Canlı Sohbet</h3>
+            <div id="chatMessages" class="chat-messages"></div>
+            <div class="chat-input-area">
+                <input type="text" id="chatInput" placeholder="Mesaj yazın...">
+                <button id="sendBtn" style="background: #3ea6ff; color: white; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer;">Gönder</button>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://unpkg.com/agora-rtc-sdk-ng@latest/AgoraRTC_N-production.js"></script>
+    <script type="module" src="watch_live.js"></script>
+</body>
+</html>

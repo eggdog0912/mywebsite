@@ -1,4 +1,5 @@
 import { supabase } from "./supabase.js";
+
 // Canlı sitede konsol yazılarını ve log üzerinden kaynak kod takibini kapatır
 if (window.location.hostname !== "127.0.0.1" && window.location.hostname !== "localhost") {
     console.log = function() {};
@@ -417,3 +418,64 @@ async function loadModalUpdateNotes() {
         modalUpdateNotesList.appendChild(noteCard);
     });
 }
+
+
+// ==========================================
+// CANLI YAYIN DİNAMİK YÖNLENDİRME & LİSTELEME
+// ==========================================
+function goToLivePage() {
+    // Artık doğrudan canlı yayın listeleme sayfasına yönlendiriyoruz
+    window.location.href = "livestreams.html";
+}
+
+// Sol menü veya üst menüdeki canlı yayın butonuna event dinleyici bağlayalım
+const liveBtn = document.querySelector(".live-btn");
+if (liveBtn) {
+    liveBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        goToLivePage();
+    });
+}
+
+// Ana sayfada o an aktif canlı yayınları Supabase'den çekip listeleme
+async function loadActiveLiveStreams() {
+    const liveSection = document.getElementById("liveStreamsSection");
+    if (!liveSection) return;
+
+    const { data: streams, error } = await supabase
+        .from('live_streams')
+        .select('*')
+        .eq('is_live', true);
+
+    if (error || !streams || streams.length === 0) {
+        liveSection.style.display = "none";
+        return;
+    }
+
+    liveSection.style.display = "block";
+    const grid = liveSection.querySelector(".live-grid");
+    if (!grid) return;
+    
+    grid.innerHTML = "";
+
+    streams.forEach(stream => {
+        const card = document.createElement("div");
+        card.style.cssText = "background: #1f1f1f; padding: 15px; border-radius: 8px; border: 1px solid #333; cursor: pointer;";
+        card.onclick = () => {
+            // İzleyici sayfasına yönlendirme (watch_live.html)
+            window.location.href = `watch_live.html?channel=${encodeURIComponent(stream.channel_name)}`;
+        };
+
+        card.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="background: #cc0000; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: bold;">🔴 CANLI</span>
+            </div>
+            <h4 style="margin: 0 0 5px 0; color: #fff; font-size: 16px;">${stream.stream_title || 'Canlı Yayın'}</h4>
+            <p style="margin: 0; color: #aaa; font-size: 13px;">Kanal: <strong style="color: #3ea6ff;">${stream.channel_name}</strong></p>
+        `;
+        grid.appendChild(card);
+    });
+}
+
+// Ana sayfa açıldığında canlı yayınları sorgula
+loadActiveLiveStreams();

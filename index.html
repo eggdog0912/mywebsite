@@ -13,6 +13,8 @@
 
 <body>
 
+    
+
     <!-- YÜKLENİYOR EKRANI (LOADER) -->
 <div id="loadingOverlay" class="loading-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; color: white; font-family: sans-serif;">
     <div class="spinner" style="border: 4px solid rgba(255,255,255,0.1); width: 50px; height: 50px; border-radius: 50%; border-left-color: #cc0000; animation: spin 1s linear infinite; margin-bottom: 20px;"></div>
@@ -83,8 +85,19 @@
     <i class="fa-solid fa-bullhorn" style="font-size: 18px; color: #ffffff;"></i>
     <span>Güncelleme Notları</span>
 </button>
+<button onclick="window.location.href='livestreams.html'" class="live-btn">
+    <span class="pulse-dot"></span> 🔴 Canlı Yayın
+</button>
 
-
+<!-- AKTİF CANLI YAYINLAR BÖLÜMÜ (Yayın yoksa JS ile gizlenir) -->
+<section id="liveStreamsSection" style="display: none; margin-bottom: 30px;">
+    <h2 style="color: #fff; font-size: 20px; display: flex; align-items: center; gap: 8px;">
+        🔴 Şu An Canlı Yayında
+    </h2>
+    <div class="live-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-top: 15px;">
+        <!-- JS buraya canlı yayın kartlarını basacak -->
+    </div>
+</section>
 <!-- AÇILACAK PENCERE (MODAL) -->
 <div id="updateNotesModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 1000; justify-content: center; align-items: center;">
     <div style="background: #212121; width: 90%; max-width: 500px; max-height: 80vh; border-radius: 12px; border: 1px solid #333; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgaTube - Canlı Yayın Aç</title>
+    <link rel="stylesheet" href="channel.css">
+    <style>
+        .broadcast-box {
+            max-width: 900px;
+            margin: 30px auto;
+            background: #181818;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #282828;
+        }
+        #previewContainer {
+            width: 100%;
+            height: 480px;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .btn {
+            padding: 12px 20px;
+            border-radius: 6px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+            font-size: 14px;
+        }
+        .btn-cam { background: #0088cc; }
+        .btn-screen { background: #2b7fff; }
+        .btn-stop { background: #cc0000; }
+    </style>
+</head>
+<body>
+    <header style="padding: 12px 20px; background: #181818; border-bottom: 1px solid #282828; display: flex; align-items: center; justify-content: space-between;">
+        <button onclick="window.location.href='livestreams.html'" style="padding: 8px 14px; background: #272727; color: white; border: 1px solid #3a3a3a; border-radius: 6px; cursor: pointer;">
+            ← Canlı Yayınlara Dön
+        </button>
+
+        <h2 style="margin: 0; color: #fff; font-size: 18px;">🔴 Yayın Stüdyosu</h2>
+        <div></div>
+    </header>
+
+    <main class="broadcast-box">
+        <div id="previewContainer"></div>
+
+        <div style="margin-top: 20px; display: flex; gap: 10px; align-items: center;">
+            <input type="text" id="streamTitleInput" placeholder="Yayın Başlığı Girin..." style="flex: 1; padding: 12px; background: #0f0f0f; border: 1px solid #333; color: white; border-radius: 6px;">
+            <button id="startCamBtn" class="btn btn-cam">📹 Kamera Başlat</button>
+            <button id="startScreenBtn" class="btn btn-screen">🖥️ Ekran / Oyun Paylaş</button>
+            <button id="stopStreamBtn" class="btn btn-stop" style="display: none;">⏹️ Yayını Bitir</button>
+        </div>
+    </main>
+
+    <!-- Agora v4 SDK -->
+    <script src="https://unpkg.com/agora-rtc-sdk-ng@latest/AgoraRTC_N-production.js"></script>
+    <script type="module" src="broadcaster.js"></script>
+</body>
+</html>

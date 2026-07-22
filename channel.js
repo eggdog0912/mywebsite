@@ -58,11 +58,25 @@ async function loadChannelPage() {
     applyCustomColor(customColor, channelNameEl);
 
     // Kendi Kanalıysa Butonları Aç ve Dinleyicileri Ekle
-    const isOwner = user && (user.id === channelId || profile?.id === user.id);
-    if (isOwner) {
-        document.getElementById('uploadBannerBtn').style.display = "block";
-        document.getElementById('uploadAvatarBtn').style.display = "flex";
-        document.getElementById('colorPickerContainer').style.display = "flex";
+    // Kendi Kanalıysa Butonları Aç ve Dinleyicileri Ekle
+    // Kendi Kanalıysa Butonları Aç ve Dinleyicileri Ekle
+    const isOwner = user && (user.id === channelId || profile?.id === user.id);[cite, 3]
+    if (isOwner) {[cite, 3]
+        document.getElementById('uploadBannerBtn').style.display = "block";[cite, 3]
+        document.getElementById('uploadAvatarBtn').style.display = "flex";[cite,3]
+        document.getElementById('colorPickerContainer').style.display = "flex";[cite, 3]
+        
+        // 🔴 CANLI YAYIN BAŞLAT BUTONUNU KANAL SAHİBİNE GÖSTER
+        const startLiveBtn = document.getElementById('startLiveBtn');
+        if (startLiveBtn) {
+            startLiveBtn.style.display = "inline-block";
+            startLiveBtn.onclick = () => {
+                window.location.href = `live.html?channel=${encodeURIComponent(currentChannelName)}`;
+            };
+        }
+        
+       
+    
         
         // ✏️ AÇIKLAMA DÜZENLEME BUTONUNU AÇ
         const editBioBtn = document.getElementById('editBioBtn');

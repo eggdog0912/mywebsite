@@ -80,7 +80,37 @@
             <button id="closeStatsBtn" style="width: 100%; margin-top: 15px; padding: 10px; background: #3ea6ff; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Kapat</button>
         </div>
     </div>
+<button id="startLiveBtn" class="btn-start" style="display: none;" onclick="startMyLiveStream()">
+    🔴 Canlı Yayın Başlat
+</button>
 
+<script type="module">
+import { supabase } from "./supabase.js";
+
+async function checkChannelOwner() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const pageChannel = urlParams.get('channel');
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (user) {
+        const myChannel = user.user_metadata?.channel_name || user.email.split('@')[0];
+        // Eğer baktığımız sayfa kullanıcının kendi kanalıysa butonu göster
+        if (pageChannel === myChannel) {
+            document.getElementById('startLiveBtn').style.display = 'inline-block';
+        }
+    }
+}
+
+window.startMyLiveStream = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+        const myChannel = user.user_metadata?.channel_name || user.email.split('@')[0];
+        window.location.href = `live.html?channel=${encodeURIComponent(myChannel)}`;
+    }
+};
+
+checkChannelOwner();
+</script>
     <!-- SUPABASE VE JS BAĞLANTISI -->
     <script type="module" src="channel.js"></script>
 </body>

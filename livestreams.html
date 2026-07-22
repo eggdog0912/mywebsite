@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgaTube - Canlı Yayınlar</title>
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header>
+        <div class="left-header">
+            <h2 class="logo" onclick="window.location.href='index.html'" style="cursor: pointer;">
+                <i class="fa-brands fa-youtube"></i> AgaTube
+            </h2>
+        </div>
+
+        <div class="middle-header">
+            <input type="text" id="searchInput" placeholder="Canlı yayın veya kanal ara...">
+            <button id="searchButton"><i class="fa-solid fa-magnifying-glass"></i></button>
+        </div>
+
+        <div class="right-header">
+            <!-- 🔴 UPLOAD YERİNE GO LIVE BUTONU -->
+            <button id="goLiveBtn" style="background-color: #cc0000; color: white; font-weight: bold; border-radius: 20px; padding: 8px 16px; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-tower-broadcast"></i> Go Live
+            </button>
+            <span id="welcome"></span>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- SOL MENÜ -->
+        <aside>
+            <button onclick="window.location.href='index.html'">
+                <i class="fa-solid fa-house"></i> Ana Sayfa
+            </button>
+            <button onclick="window.location.href='livestreams.html'" style="background: #272727; font-weight: bold;">
+                <i class="fa-solid fa-tower-broadcast" style="color: #ff4d4d;"></i> Canlı Yayınlar
+            </button>
+            <button onclick="window.location.href='allchannels.html'">
+                <i class="fa-solid fa-users"></i> Kanallar
+            </button>
+        </aside>
+
+        <!-- ANA İÇERİK: CANLI YAYIN KARTLARI GRİDİ -->
+        <main>
+            <h2 style="color: #fff; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                🔴 Şu An Canlı Yayında Olanlar
+            </h2>
+            <div id="liveGridContainer" class="video-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">
+                <!-- Aktif yayınlar buraya yüklenecek -->
+            </div>
+        </main>
+    </div>
+
+    <script type="module" src="livestreams.js"></script>
+</body>
+</html>
